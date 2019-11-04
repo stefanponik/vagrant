@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = 2048
+    vb.cpus = 1
+  config.ssh.insert_key = true
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get upgrade -y
+    apt-get install python-minimal -y
+    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    sudo service ssh restart
+    echo -e "password\npassword" | sudo passwd ubuntu
+  SHELL
+  end
+
+  # Docker Master 1.
+  config.vm.define "docker1" do |srv|
+    srv.vm.hostname = "Docker-Master-1"
+    srv.vm.network :private_network, ip: "192.168.60.10"
+  end
+   # Docker Master 2. 
+   config.vm.define "docker2" do |srv|
+     srv.vm.hostname = "Docker-Master-2"
+     srv.vm.network :private_network, ip: "192.168.60.11"
+   end
+   # Docker Master 3. 
+   config.vm.define "docker3" do |srv|
+     srv.vm.hostname = "Docker-Master-3"
+     srv.vm.network :private_network, ip: "192.168.60.12"
+   end
+     # Docker Node 1. 
+   config.vm.define "docker4" do |srv|
+     srv.vm.hostname = "Docker-node-1"
+     srv.vm.network :private_network, ip: "192.168.60.13"
+   end
+       # Docker Master 3. 
+   config.vm.define "docker5" do |srv|
+     srv.vm.hostname = "Docker-node-2"
+     srv.vm.network :private_network, ip: "192.168.60.14"
+   end
+     # Docker Master 3. 
+   config.vm.define "docker6" do |srv|
+     srv.vm.hostname = "Docker-node-3"
+     srv.vm.network :private_network, ip: "192.168.60.15"
+   end
+end
+

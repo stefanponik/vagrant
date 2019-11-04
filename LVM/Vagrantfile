@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+vm_name = "project-vm"
+disk1 = "project_disk10.vmdk"
+disk2 = "project_disk11.vmdk"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.network "private_network", ip: "192.168.60.6"
+#  config.vm.network "private_network", ip: "192.168.70.7"
+  config.vm.hostname = vm_name
+  config.vm.provision "ansible" do |ansible|
+  ansible.config_file = "/Users/sponik/OneDrive/git/ansible/ansible.cfg" 
+  ansible.playbook = "/Users/sponik/OneDrive/git/ansible/playbooks/ansible_vagrant_final_project.yml"
+	
+	end
+  config.vm.provider :virtualbox do |v|
+    v.name = vm_name
+    v.memory = 4096
+    v.cpus = 2 
+    v.customize ['createhd', '--filename', "#{ENV["HOME"]}/VirtualBox VMs/#{vm_name}/#{disk1}", '--size', 50 * 1024]
+    v.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 2, '--device', 0, '--type', 'hdd', '--medium', "#{ENV["HOME"]}/VirtualBox VMs/#{vm_name}/#{disk1}"]
+    v.customize ['createhd', '--filename', "#{ENV["HOME"]}/VirtualBox VMs/#{vm_name}/#{disk2}", '--size', 50 * 1024]
+    v.customize ['storageattach', :id, '--storagectl', 'SCSI', '--port', 3, '--device', 0, '--type', 'hdd', '--medium', "#{ENV["HOME"]}/VirtualBox VMs/#{vm_name}/#{disk2}"]
+  end
+# nic_type: "virtio"
+#  # Application server 1.
+#  config.vm.define "app1" do |app|
+#    app.vm.hostname = "orc-app1.dev"
+#    app.vm.network :private_network, ip: "192.168.60.6"
+#  end
+end
